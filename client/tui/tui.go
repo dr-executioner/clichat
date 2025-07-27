@@ -45,8 +45,7 @@ func InitialModel(sendFn func(string)) Model {
 	ta.ShowLineNumbers = false
 
 	vp := viewport.New(30, 5)
-	vp.SetContent(`Welcome to the chat room!
-Type a message and press Enter to send.`)
+	vp.SetContent(`Welcome to the chat room!\nType a message and press Enter to send.`)
 
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
@@ -74,13 +73,22 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	m.viewport, vpCmd = m.viewport.Update(msg)
 
 	switch msg := msg.(type) {
+
 	case IncomingMessage:
-		m.messages = append(m.messages, "Server:"+msg.Content)
+		m.messages = append(m.messages, m.senderStyle.Render("Server:")+msg.Content)
+		content := strings.Join(m.messages, "\n")
+		m.viewport.SetContent(content)
+		m.textarea.Reset()
+		m.viewport.GotoBottom()
 	case tea.WindowSizeMsg:
+		if msg.Width == 0 || msg.Height == 0 {
+			break
+		}
 		m.viewport.Width = msg.Width
 		m.textarea.SetWidth(msg.Width)
 		m.viewport.Height = msg.Height - m.textarea.Height() - lipgloss.Height(gap)
 
+		m.viewport.SetContent(strings.Join(m.messages, "\n"))
 		if len(m.messages) > 0 {
 			// Wrap content before setting it.
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
@@ -96,8 +104,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			m.textarea.Reset()
+			m.viewport.SetContent(strings.Join(m.messages, "\n"))
 			m.viewport.GotoBottom()
-
 			if m.sendCallBack != nil {
 				m.sendCallBack(msg)
 			}

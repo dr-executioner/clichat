@@ -3,6 +3,7 @@ package main
 import (
 	"clichat/client/tui"
 	"fmt"
+	"log"
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -10,7 +11,6 @@ import (
 )
 
 func main() {
-	var p *tea.Program
 	conn, _, err := websocket.DefaultDialer.Dial("ws://localhost:42069/ws", nil)
 
 	if err != nil {
@@ -20,31 +20,28 @@ func main() {
 
 	defer conn.Close()
 
-	send := func(msg string) {
-		err := conn.WriteMessage(websocket.TextMessage, []byte(msg))
-
-		if err != nil {
-			p.Send(tui.IncomingMessage{Content: fmt.Sprintf("Error sending message :", err)})
+	model := tui.InitialModel(func(msg string) {
+		if err := conn.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+			log.Println("Error occured:", err)
 		}
-	}
+	})
 
-	prog := tea.NewProgram(tui.InitialModel(send))
-	p = prog
+	p := tea.NewProgram(model, tea.WithAltScreen())
 
 	go func() {
 		for {
-			_, message, err := conn.ReadMessage()
-
+			_, msg, err := conn.ReadMessage()
 			if err != nil {
-				p.Send(tui.IncomingMessage{Content: fmt.Sprintf("Disconnected")})
+				log.Println("Read Error:", err)
+				p.Quit()
 				return
 			}
-			p.Send(tui.IncomingMessage{Content: string(message)})
+			p.Send(tui.IncomingMessage{Content: string(msg)})
 		}
 	}()
-
-	if _, err := prog.Run(); err != nil {
-		fmt.Printf("Alas, there's been an error: %v", err)
+	if _, err := p.Run(); err != nil {
+		log.Println("Error Running TUI:", err)
 		os.Exit(1)
 	}
+
 }
