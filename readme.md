@@ -66,7 +66,7 @@ Open another terminal and run the client again to simulate another user.
 
 ## 🖼️ Demo
 
-![hippo](https://drive.google.com/file/d/1ead7jw_xumWB9J7XOo0iSxme0nNygH47/view?usp=drive_link)
+![](./clichat.gif)
 ---
 
 ## 🧠 How It Works
