@@ -1,4 +1,4 @@
-# 🧋 BubbleChat
+# 🧋 CliChat
 
 A lightweight CLI chat app built with [Go](https://golang.org), [WebSockets](https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API), and the amazing [Bubbletea](https://github.com/charmbracelet/bubbletea) TUI framework.
 
@@ -20,8 +20,12 @@ A lightweight CLI chat app built with [Go](https://golang.org), [WebSockets](htt
 ```
 chat-app/
 │
-├── server/         # WebSocket server (Go)
+├── server/ # WebSocket server (Go)
 │   └── main.go
+│   hub
+│    └── hub.go
+│   ws
+│    └── handler.go
 │
 ├── client/         # TUI chat client (Go)
 │   ├── main.go
@@ -43,7 +47,7 @@ cd server
 go run .
 ```
 
-> Server runs on `localhost:8080` by default
+> Server runs on `localhost:42069/home/arya/Downloads/clichat.gif` by default
 
 ---
 
@@ -62,8 +66,7 @@ Open another terminal and run the client again to simulate another user.
 
 ## 🖼️ Demo
 
-_(Insert a terminal screen recording or GIF here using [asciinema](https://asciinema.org/) or [peek](https://github.com/phw/peek))_
-
+![hippo](https://drive.google.com/file/d/1ead7jw_xumWB9J7XOo0iSxme0nNygH47/view?usp=drive_link)
 ---
 
 ## 🧠 How It Works
@@ -95,7 +98,6 @@ go mod tidy
 
 - 🔐 User authentication
 - 🧑‍🤝‍🧑 Private messages / group chat
-- 💻 HTMX or browser-based client
 - 🧪 Add unit tests and e2e testing
 
 ---
