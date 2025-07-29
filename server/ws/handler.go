@@ -25,6 +25,12 @@ var upgrader = websocket.Upgrader{
 }
 
 func (wss *WebSocketServer) WsHandler(w http.ResponseWriter, r *http.Request) {
+	username := r.URL.Query().Get("user")
+	if username == "" {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		fmt.Println("Upgrade Error", err)
