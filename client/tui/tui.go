@@ -17,6 +17,7 @@ type (
 )
 
 type Model struct {
+	username     string
 	viewport     viewport.Model
 	messages     []string
 	textarea     textarea.Model
@@ -25,7 +26,8 @@ type Model struct {
 	sendCallBack func(string)
 }
 type IncomingMessage struct {
-	Content string
+	From    string `json:"from"`
+	Content string `json:"content"`
 }
 
 func InitialModel(sendFn func(string)) Model {
@@ -50,6 +52,7 @@ func InitialModel(sendFn func(string)) Model {
 	ta.KeyMap.InsertNewline.SetEnabled(false)
 
 	return Model{
+		username:     "",
 		textarea:     ta,
 		messages:     []string{},
 		viewport:     vp,
@@ -75,7 +78,12 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 
 	case IncomingMessage:
-		m.messages = append(m.messages, m.senderStyle.Render("Server:")+msg.Content)
+		label := msg.From
+		if msg.From == m.username {
+			label = "You"
+		}
+
+		m.messages = append(m.messages, m.senderStyle.Render(label, ":")+msg.Content)
 		content := strings.Join(m.messages, "\n")
 		m.viewport.SetContent(content)
 		m.textarea.Reset()

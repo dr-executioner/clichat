@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"clichat/client/tui"
 	"clichat/server/auth"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -12,6 +13,11 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gorilla/websocket"
 )
+
+type OutGoingMessage struct {
+	From    string `json:"from"`
+	Content string `json:"content"`
+}
 
 var authManager = auth.NewAuthManager()
 
@@ -26,7 +32,13 @@ func StartChatClient(username string) {
 	defer conn.Close()
 
 	model := tui.InitialModel(func(msg string) {
-		if err := conn.WriteMessage(websocket.TextMessage, []byte(msg)); err != nil {
+		payload :=
+			OutGoingMessage{
+				From:    username,
+				Content: msg,
+			}
+		jsonBytes, _ := json.Marshal(payload)
+		if err := conn.WriteMessage(websocket.TextMessage, jsonBytes); err != nil {
 			log.Println("Error occured initiaising tui model:", err)
 		}
 	})
@@ -37,11 +49,16 @@ func StartChatClient(username string) {
 		for {
 			_, msg, err := conn.ReadMessage()
 			if err != nil {
-				log.Println("Read Error:", err)
-				p.Quit()
+				p.Send(tui.IncomingMessage{From: "System", Content: "Disconnected"})
 				return
 			}
-			p.Send(tui.IncomingMessage{Content: string(msg)})
+
+			var outMsg OutGoingMessage
+			if err := json.Unmarshal(msg, &outMsg); err != nil {
+				p.Send(tui.IncomingMessage{From: "Unknown", Content: string(msg)})
+				continue
+			}
+			p.Send(tui.IncomingMessage{From: outMsg.From, Content: outMsg.Content})
 		}
 	}()
 	if _, err := p.Run(); err != nil {
