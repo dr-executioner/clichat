@@ -19,7 +19,7 @@ type OutGoingMessage struct {
 	Content string `json:"content"`
 }
 
-var authManager = auth.NewAuthManager()
+var authManager, err = auth.NewAuthManager("root:qwertyroot@tcp(127.0.0.1:3306)/clichatdb")
 
 func StartChatClient(username string) {
 	wsUrl := fmt.Sprintf("ws://localhost:42069/ws?user=%s", username)
