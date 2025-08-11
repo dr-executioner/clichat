@@ -21,7 +21,7 @@ func NewAuthManager(dsn string) (*AuthManager, error) {
 	db, err := sql.Open("mysql", dsn)
 
 	if err != nil {
-		return nil, fmt.Errorf("Failed to conencto to Database: %w", err)
+		return nil, fmt.Errorf("Failed to connect to Database: %w", err)
 	}
 	if err := db.Ping(); err != nil {
 		return nil, fmt.Errorf("Failed to ping Db: %w", err)
@@ -40,13 +40,13 @@ func (am *AuthManager) Register(username, password string) error {
 	}
 
 	if exists {
-		return fmt.Errorf("username already exists")
+		return fmt.Errorf("Username '%s' already exists", username)
 	}
 
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 
 	if err != nil {
-		return fmt.Errorf("Failed to has password: %w", err)
+		return fmt.Errorf("Failed to hash password: %w", err)
 	}
 
 	_, err = am.db.Exec("INSERT INTO users (username, password_hash) VALUES (?, ?)", username, string(hashedPassword))
