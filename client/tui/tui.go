@@ -88,6 +88,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.viewport.SetContent(content)
 		m.textarea.Reset()
 		m.viewport.GotoBottom()
+
 	case tea.WindowSizeMsg:
 		if msg.Width == 0 || msg.Height == 0 {
 			break
@@ -102,6 +103,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 		}
 		m.viewport.GotoBottom()
+
 	case tea.KeyMsg:
 		switch msg.Type {
 		case tea.KeyCtrlC, tea.KeyEsc:
@@ -109,10 +111,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case tea.KeyEnter:
 			msg := m.textarea.Value()
-			m.messages = append(m.messages, m.senderStyle.Render("You: ")+m.textarea.Value())
-			m.viewport.SetContent(lipgloss.NewStyle().Width(m.viewport.Width).Render(strings.Join(m.messages, "\n")))
 			m.textarea.Reset()
-			m.viewport.SetContent(strings.Join(m.messages, "\n"))
 			m.viewport.GotoBottom()
 			if m.sendCallBack != nil {
 				m.sendCallBack(msg)
